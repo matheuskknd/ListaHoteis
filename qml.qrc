@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>./QML/main.qml</file>
+        <file>./QML/HourListWindow.qml</file>
+    </qresource>
+</RCC>
