@@ -291,7 +291,7 @@ Window{
 						font.pointSize: Math.max(Math.min(height,width) * 20/100,1)
 						color: "#ffffff"
 
-						text: "file://" + controller.getHomePath() + "/hotelList.csv"
+						text: "file://" + controller.getHomePath() + "/hotelListStorage/hotelList.csv"
 						wrapMode: Text.WrapAnywhere
 					}
 				}

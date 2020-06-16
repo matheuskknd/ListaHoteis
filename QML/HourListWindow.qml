@@ -31,7 +31,7 @@ Window{
 	}
 
 	Rectangle{
-		
+
 		id: backGround
 		anchors.fill: parent
 		color: "#212222"

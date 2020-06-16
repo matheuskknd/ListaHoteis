@@ -6,7 +6,7 @@ UI QML com binds em C++ para carregar e fazer parse de dados
 Para buildar o projeto, é necessário instalar o QtCreator 4.12.2 ou superior e abrir o arquivo *.pro* nesta página.
 A configuração deve suportar a biblioteca do QML QtQuick 2.15 TLS, Qt 5.15.0 e um compilador de C++11 ou superiores.
 
-Além disso, deve haver um arquivo *.csv* válido no diretório <font color="green">$HOME</font> (ou um link para o mesmo) chamado "hotelList.csv".
+Além disso, deve haver um link para o diretório *storage* deste repositório no diretório <font color="green">$HOME</font> chamado "hotelListStorage/".
 
 ## Decisões de UI
 
