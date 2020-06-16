@@ -31,20 +31,20 @@ A principal parte da API é a classe InputProcessor, que interage com o QML como
 A classe InputProcessor possui os seguintes métodos públicos:
 
 * QStringList availableHours( const QString& uri, const QString& time) noexcept:
- * uri -> uma URI do tipo "file://" com o caminho absoluto para um arquivo CSV válido
- * time -> um valor de hora e minuto no formato "HH:MM"
+	* uri -> uma URI do tipo "file://" com o caminho absoluto para um arquivo CSV válido
+	* time -> um valor de hora e minuto no formato "HH:MM"
 
- * Retorna -> uma QStringList contendo os nomes dos hoteis abertos naquele horário, segundo o arquivo CSV;
-  * Pode ser chamado via QML
+	* Retorna -> uma QStringList contendo os nomes dos hoteis abertos naquele horário, segundo o arquivo CSV;
+		* Pode ser chamado via QML
 
- * Exceções -> lança um erro do tipo QString contendo uma mensagem explicativa ao objeto InputProcessor::engine setado anteriormente
-  * Se houver qualquer erro de parse da hora passada por parâmetro;
-  * Se houver qualquer erro de parse do CSV.
-  * Não lança exeções na stack do C++
+	* Exceções -> lança um erro do tipo QString contendo uma mensagem explicativa ao objeto InputProcessor::engine setado anteriormente
+		* Se houver qualquer erro de parse da hora passada por parâmetro;
+		* Se houver qualquer erro de parse do CSV.
+		* Não lança exeções na stack do C++
 
- * QString getHomePath() noexcept:
-  * Retorna -> QDir::homePath()
+* QString getHomePath() noexcept:
+	* Retorna -> QDir::homePath()
 
- * static void setEngine( QJSEngine& _engine) noexcept:
-  * _engine _> um objeto do tipo QJSEngine (assim como QQmlApplicationEngine), o qual pode executar um arquivo .qml onde métodos dessa classe podem ser chamados
-  * NOTA: se qualquer outro método desta classe for chamado sem que antes sua QJSEngine tenha sido definida com este método, o comportamento é indefinido.
+* static void setEngine( QJSEngine& _engine) noexcept:
+	* _engine _> um objeto do tipo QJSEngine (assim como QQmlApplicationEngine), o qual pode executar um arquivo .qml onde métodos dessa classe podem ser chamados
+	* NOTA: se qualquer outro método desta classe for chamado sem que antes sua QJSEngine tenha sido definida com este método, o comportamento é indefinido.
