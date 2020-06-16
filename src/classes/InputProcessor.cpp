@@ -43,13 +43,12 @@ TupleList InputProcessor::readCSV( const QString& fileName, const int searchT) n
 		throw QString("O arquivo CSV não pode ser aberto");
 
 	size_t line = 1;
-	uint8_t col = 0;
+	float col = 0;
 
 	try{
 
 		// Auxiliar variables
 		string str;
-		char ch;
 
 		getline(file,str);	// Ignores the file's first line
 		line = 2;
@@ -60,7 +59,6 @@ TupleList InputProcessor::readCSV( const QString& fileName, const int searchT) n
 		// Temporary variables
 		QString qstr;
 		int t1, t2;
-		int tmp;
 
 		while( !file.eof() ){
 
@@ -69,9 +67,7 @@ TupleList InputProcessor::readCSV( const QString& fileName, const int searchT) n
 
 			// Get the first column
 			col = 1;
-			str.clear();
 			getline(file,str,';');
-			qstr = str.data();
 
 			if( str.empty() ){
 
@@ -84,89 +80,28 @@ TupleList InputProcessor::readCSV( const QString& fileName, const int searchT) n
 			if( str.find('\n') != string::npos || file.eof() )
 				throw logic_error("Nenhum separador ';' encontrado");
 
+			qstr = str.data();
+
 			// Get the second column starting hour
-			col = 2;
-			file >> tmp;
+			col = 2.1;
+			getline(file,str,'-');
 
-			if( !file.good() )
-				throw logic_error("Erro de parse na primeira hora");
+			if( str.empty() )
+				throw logic_error("Hora de abertura não encontrada");
 
-			if( tmp < 0 || tmp > 23 )
-				throw logic_error("Valor da primeira hora fora do intervalo");
+			if( str.find('\n') != string::npos || file.eof() )
+				throw logic_error("Nenhum separador '-' encontrado");
 
-			t1 = 60 * tmp;
-			file >> ch;
-
-			if( !file.good() )
-				throw logic_error("Erro de parse no primeiro separador de hora");
-
-			if( ch != ':' )
-				throw logic_error("Primeiro separador de hora ':' não encontrado");
-
-			// Get the second column starting minute
-			file >> tmp;
-
-			if( !file.good() )
-				throw logic_error("Erro de parse no primeiro minuto");
-
-			if( tmp < 0 || tmp > 59 )
-				throw logic_error("Valor do primeiro minuto fora do intervalo");
-
-			t1 += tmp;
-			file >> ch;
-
-			if( !file.good() )
-				throw logic_error("Erro de parse no separador de primeira e segunda hora");
-
-			if( ch != '-' )
-				throw logic_error("Separador de primeira e segunda hora '-' não encontrado");
+			t1 = parseInputTime(str);
 
 			// Get the second column closing hour
-			file >> tmp;
+			col = 2.2;
+			getline(file,str);
 
-			if( !file.good() )
-				throw logic_error("Erro de parse na segunda hora");
+			if( str.empty() )
+				throw logic_error("Hora de fechamento não encontrada");
 
-			if( tmp < 0 || tmp > 23 )
-				throw logic_error("Valor da segunda hora fora do intervalo");
-
-			t2 = 60 * tmp;
-			file >> ch;
-
-			if( !file.good() )
-				throw logic_error("Erro de parse no segundo separador de hora");
-
-			if( ch != ':' )
-				throw logic_error("Segundo separador de hora ':' não encontrado");
-
-			// Get the second column closing minute
-			file >> tmp;
-
-			if( file.fail() )
-				throw logic_error("Erro de parse no segundo minuto");
-
-			if( tmp < 0 || tmp > 59 )
-				throw logic_error("Valor do segundo minuto fora do intervalo");
-
-			t2 += tmp;
-
-			str.clear();
-			getline(file,str);	// Ignores the rest of this line
-
-			if( !str.empty() )
-				throw logic_error("A formatação do CSV não condiz com ('.+','[0-9]{1,2}:[0-9]{1,2}-[0-9]{1,2}:[0-9]{1,2}')");
-
-			// Logical selection part
-			if( t1 > t2 ){
-
-				if( searchT >= t1 || searchT <= t2 )
-					hotelList.emplace_back(std::move(qstr),t1,t2);
-
-			}else{
-
-				if( searchT >= t1 && searchT <= t2 )
-					hotelList.emplace_back(std::move(qstr),t1,t2);
-			}
+			t2 = parseInputTime(str);
 
 #ifndef NDEBUG
 
@@ -180,6 +115,18 @@ cout << "Line: " << line << "\n\n";
 
 #endif
 
+			// Logical selection part
+			if( t1 > t2 ){
+
+				if( searchT >= t1 || searchT <= t2 )
+					hotelList.emplace_back(std::move(qstr),t1,t2);
+
+			}else{
+
+				if( searchT >= t1 && searchT <= t2 )
+					hotelList.emplace_back(std::move(qstr),t1,t2);
+			}
+
 			++line;
 		}
 
@@ -187,7 +134,7 @@ cout << "Line: " << line << "\n\n";
 
 		string_s error_msg;
 
-		error_msg << "Error lendo arquivo CSV na linha: " << line << " coluna: " << int(col)
+		error_msg << "Error lendo arquivo CSV na linha: " << line << " coluna: " << col
 			<< "\nMensagem: " << error.what() << "\nCódigo: " << error.code() << '\n';
 
 		throw QString(error_msg.str().data());
@@ -196,7 +143,7 @@ cout << "Line: " << line << "\n\n";
 
 		string_s error_msg;
 
-		error_msg << "Error de parse no arquivo CSV na linha: " << line << " coluna: " << int(col)
+		error_msg << "Error de parse no arquivo CSV na linha: " << line << " coluna: " << col
 			<< "\nMensagem: " << error.what() << '\n';
 
 		throw QString(error_msg.str().data());
@@ -217,7 +164,43 @@ cout << "Line: " << line << "\n\n";
 	return hotelList;
 }
 
-QStringList InputProcessor::availableHours( const QString& uri, const QString& time) noexcept(0) try{
+
+int InputProcessor::parseInputTime( const string& time) noexcept(0){
+
+	string_s strs(time);
+	string aux;
+
+	int value;
+	int tmp;
+
+	getline(strs,aux,':');
+
+	if( aux.empty() )
+		throw logic_error("Valor da hora não encontrado");
+
+	// Parse the input hour
+	tmp = stoi(aux,nullptr,10);
+
+	if( tmp < 0 || tmp > 23 )
+		throw logic_error("A hora inserida está fora de intervalo");
+
+	value = 60 * tmp;
+	getline(strs,aux);
+
+	if( aux.empty() )
+		throw logic_error("Valor dos minutos não encontrado");
+
+	// Parse the input minutes
+	tmp = stoi(aux,nullptr,10);
+
+	if( tmp < 0 || tmp > 59 )
+		throw logic_error("Os minutos inseridos estão fora de intervalo");
+
+	return value + tmp;
+}
+
+
+QStringList InputProcessor::availableHours( const QString& uri, const QString& time) noexcept try{
 
 	Q_ASSERT(!uri.isEmpty() && !time.isEmpty());
 	Q_ASSERT(time.length() == 5);
@@ -227,24 +210,7 @@ QStringList InputProcessor::availableHours( const QString& uri, const QString& t
 
 	try{
 
-		const string& aux = time.toStdString();
-		int tmp;
-
-		// Parse the input hour
-		tmp = stoi(aux.substr(0,2),nullptr,10);
-
-		if( tmp < 0 || tmp > 23 )
-			throw logic_error("A hora inserida está fora de intervalo");
-
-		searchT = 60 * tmp;
-
-		// Parse the input minute
-		tmp = stoi(aux.substr(3,2),nullptr,10);
-
-		if( tmp < 0 || tmp > 59 )
-			throw logic_error("Os minutos inseridos estão fora de intervalo");
-
-		searchT += tmp;
+		searchT = parseInputTime(time.toStdString());
 
 	}catch( const logic_error& error){
 

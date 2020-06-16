@@ -1,0 +1,10 @@
+# Ignore test temporary files
+
+src/test/.qmake.stash
+src/test/Makefile
+src/test/moc_*
+
+# Ignore test binary files
+
+src/test/test
+src/test/*.o

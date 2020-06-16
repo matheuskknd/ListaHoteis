@@ -1,7 +1,7 @@
 #include<QQmlApplicationEngine>
 #include<QGuiApplication>
 
-#include"InputProcessor.h"
+#include"classes/InputProcessor.h"
 
 int main( int argc, char** argv){
 
