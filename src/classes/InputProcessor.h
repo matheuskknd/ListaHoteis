@@ -15,7 +15,7 @@ class InputProcessor : public QObject{
 	static QJSEngine* engine;
 	Q_OBJECT
 
-private:
+protected:
 
 	// Read the SCV file and return a list of hotel names
 	static std::list<std::tuple<QString,int,int>> readCSV( const QString& fileName, int searchT = 0) noexcept(0);
@@ -26,10 +26,11 @@ private:
 public:
 
 	explicit InputProcessor( QObject* parent = nullptr) : QObject(parent) {}
+	virtual ~InputProcessor() = default;
 
-	Q_INVOKABLE QStringList availableHours( const QString& uri, const QString& time) noexcept;
+	Q_INVOKABLE virtual QStringList availableHours( const QString& uri, const QString& time) noexcept;
 
-	Q_INVOKABLE QString getHomePath() noexcept{ return QDir::homePath();}
+	Q_INVOKABLE virtual QString getHomePath() noexcept{ return QDir::homePath();}
 
 	static void setEngine( QJSEngine& _engine) noexcept{ engine = &_engine; }
 };

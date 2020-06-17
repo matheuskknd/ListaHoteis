@@ -12,7 +12,8 @@ using std::ios_base;
 using std::getline;
 
 #include<sstream>
-using string_s = std::stringstream;
+using ostring_s = std::ostringstream;
+using istring_s = std::istringstream;
 
 #include<string>
 using std::to_string;
@@ -25,14 +26,9 @@ using std::tuple;
 #include<list>
 using TupleList = std::list<tuple<QString,int,int>>;
 
-#ifndef NDEBUG
-
-	#include<iostream>
-	using std::cout;
-
-#endif
 
 QJSEngine* InputProcessor::engine = nullptr;
+
 
 TupleList InputProcessor::readCSV( const QString& fileName, const int searchT) noexcept(0){
 
@@ -86,7 +82,7 @@ TupleList InputProcessor::readCSV( const QString& fileName, const int searchT) n
 			col = 2.1;
 			getline(file,str,'-');
 
-			if( str.empty() )
+			if( str.empty() || str[0] == '\n' )
 				throw logic_error("Hora de abertura não encontrada");
 
 			if( str.find('\n') != string::npos || file.eof() )
@@ -102,18 +98,6 @@ TupleList InputProcessor::readCSV( const QString& fileName, const int searchT) n
 				throw logic_error("Hora de fechamento não encontrada");
 
 			t2 = parseInputTime(str);
-
-#ifndef NDEBUG
-
-cout << "Hotel: " << qstr.toStdString() << "\n";
-cout << "Hora 1: " << t1/60 << "\n";
-cout << "min 1: " << t1%60 << "\n";
-cout << "Hora 2: " << t2/60 << "\n";
-cout << "min 2: " << t2%60 << "\n";
-cout << "Olhando: (" << str << ")\n";
-cout << "Line: " << line << "\n\n";
-
-#endif
 
 			// Logical selection part
 			if( t1 > t2 ){
@@ -132,7 +116,7 @@ cout << "Line: " << line << "\n\n";
 
 	}catch( const ios_base::failure& error){
 
-		string_s error_msg;
+		ostring_s error_msg;
 
 		error_msg << "Error lendo arquivo CSV na linha: " << line << " coluna: " << col
 			<< "\nMensagem: " << error.what() << "\nCódigo: " << error.code() << '\n';
@@ -141,7 +125,7 @@ cout << "Line: " << line << "\n\n";
 
 	}catch( const logic_error& error){
 
-		string_s error_msg;
+		ostring_s error_msg;
 
 		error_msg << "Error de parse no arquivo CSV na linha: " << line << " coluna: " << col
 			<< "\nMensagem: " << error.what() << '\n';
@@ -153,7 +137,7 @@ cout << "Line: " << line << "\n\n";
 
 		auto h = to_string(searchT/60);
 		auto m = to_string(searchT%60);
-		string_s error_msg;
+		ostring_s error_msg;
 
 		error_msg << "Nenhum hotel aberto às " << ( h.size() == 1 ? "0" : "" ) << h
 			<< ':' << ( m.size() == 1 ? "0" : "" ) << m << '\n';
@@ -167,7 +151,7 @@ cout << "Line: " << line << "\n\n";
 
 int InputProcessor::parseInputTime( const string& time) noexcept(0){
 
-	string_s strs(time);
+	istring_s strs(time);
 	string aux;
 
 	int value;
@@ -177,6 +161,13 @@ int InputProcessor::parseInputTime( const string& time) noexcept(0){
 
 	if( aux.empty() )
 		throw logic_error("Valor da hora não encontrado");
+
+	if( aux.size() == time.size() )
+		throw logic_error("Separador ':' não encontrado");
+
+	for( decltype(aux.size()) i = 0; i != aux.size(); ++i)
+		if( aux[i] < '0' || aux[i] > '9')
+			throw logic_error("A hora contém um valor não numérico");
 
 	// Parse the input hour
 	tmp = stoi(aux,nullptr,10);
@@ -189,6 +180,10 @@ int InputProcessor::parseInputTime( const string& time) noexcept(0){
 
 	if( aux.empty() )
 		throw logic_error("Valor dos minutos não encontrado");
+
+	for( decltype(aux.size()) i = 0; i != aux.size(); ++i)
+		if( aux[i] < '0' || aux[i] > '9')
+			throw logic_error("Os minutos contém um valor não numérico");
 
 	// Parse the input minutes
 	tmp = stoi(aux,nullptr,10);
@@ -214,7 +209,7 @@ QStringList InputProcessor::availableHours( const QString& uri, const QString& t
 
 	}catch( const logic_error& error){
 
-		string_s error_msg;
+		ostring_s error_msg;
 		error_msg << "Erro de parse na hora inserida..\nMensagem: " << error.what() << '\n';
 		throw QString(error_msg.str().data());
 	}

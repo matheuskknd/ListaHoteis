@@ -3,10 +3,10 @@ UI QML com binds em C++ para carregar e fazer parse de dados
 
 ## Funcionamento do projeto
 
-Para buildar o projeto, é necessário instalar o QtCreator 4.12.2 ou superior e abrir o arquivo *.pro* nesta página.
+Para buildar o projeto, é necessário instalar o QtCreator 4.12.2 ou superior e abrir o arquivo '*.pro*' nesta página.
 A configuração deve suportar a biblioteca do QML QtQuick 2.15 TLS, Qt 5.15.0 e um compilador de C++11 ou superiores.
 
-Além disso, deve haver um link para o diretório *storage* deste repositório no diretório <font color="green">$HOME</font> chamado "hotelListStorage/".
+Além disso, deve haver um link para o diretório '*storage/*' deste repositório no diretório <font color="green">$HOME</font> chamado "hotelListStorage/".
 
 ## Decisões de UI
 
@@ -47,4 +47,4 @@ A classe InputProcessor possui os seguintes métodos públicos:
 
 * static void setEngine( QJSEngine& _engine) noexcept:
 	* _engine _> um objeto do tipo QJSEngine (assim como QQmlApplicationEngine), o qual pode executar um arquivo .qml onde métodos dessa classe podem ser chamados
-	* NOTA: se qualquer outro método desta classe for chamado sem que antes sua QJSEngine tenha sido definida com este método, o comportamento é indefinido.
+	* NOTA: se qualquer outro método não estático desta classe for chamado sem que antes sua QJSEngine tenha sido definida com este método, o comportamento é indefinido.

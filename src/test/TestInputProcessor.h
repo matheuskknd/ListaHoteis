@@ -1,17 +1,19 @@
 #ifndef TESTINPUTPROCESSOR_H
 #define TESTINPUTPROCESSOR_H
 
+#include"../classes/InputProcessor.h"
+
 #include<QtTest/QtTest>
 
-class TestInputProcessor: public QObject{
+class TestInputProcessor: public InputProcessor{
 
 	Q_OBJECT
 
 private slots:
 
-	static void parseInputTime() noexcept;
-	static void getHomePath() noexcept;
-	static void readCSV() noexcept;
+	static void test_parseInputTime() noexcept;
+	static void test_getHomePath() noexcept;
+	static void test_readCSV() noexcept;
 };
 
 #endif // TESTINPUTPROCESSOR_H
